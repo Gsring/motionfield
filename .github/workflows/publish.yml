@@ -14,12 +14,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: gh release download motionfield-public-v41 --pattern motionfield-public-v41.zip --dir release
+        run: gh release download motionfield-public-v42 --pattern '*.zip' --dir release
       - name: Verify and unpack
         run: |
-          echo "4a5d87aab6a03f1820de352984c3b104a5c01cf048bb4a9e8200fd1b754e7799  release/motionfield-public-v41.zip" | sha256sum --check
+          echo "f58f871b28557255d67948c114db7615accea0f7acc1130bb14822c2e0edfd21  release/motionfield-public-v42.zip" | sha256sum --check
+          echo "f36382ecc9debee1de62c85ca785933ced39a765969412bc7eb4aed3816331de  release/image-final-fixes-v42.zip" | sha256sum --check
           mkdir site
-          unzip -q release/motionfield-public-v41.zip -d site
+          unzip -q release/motionfield-public-v42.zip -d site
+          unzip -oq release/image-final-fixes-v42.zip -d site
           test -f site/index.html
           test -f site/videos.html
           test -f site/images.html
