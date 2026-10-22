@@ -1,0 +1,47 @@
+name: Publish Motionfield
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download public website
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release download motionfield-public-v41 --pattern motionfield-public-v41.zip --dir release
+      - name: Verify and unpack
+        run: |
+          echo "4a5d87aab6a03f1820de352984c3b104a5c01cf048bb4a9e8200fd1b754e7799  release/motionfield-public-v41.zip" | sha256sum --check
+          mkdir site
+          unzip -q release/motionfield-public-v41.zip -d site
+          test -f site/index.html
+          test -f site/videos.html
+          test -f site/images.html
+          test -f site/fonts.html
+          test -f site/template-library/v1/current.json
+          test -f site/design-library/v1/current.json
+          test ! -e site/workbench.html
+          test ! -e site/app.js
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
